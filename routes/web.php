@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\DB;
 use App\User;
 use Illuminate\Support\Facades\Artisan;
 use App\Jobs\UserEmailWelcome;
+use App\Mail\ContactMessage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +42,23 @@ Route::get('/mail', function () {
     UserEmailWelcome::dispatch(User::find(1));
     return "done";
 });
+
+Route::get('/contact', function(){
+    return view('mails.form');
+})->name('contact');
+
+Route::post('/sent', function(Request $request){
+    $name =  $request->input('name');
+    $email = $request->input('email');
+    $content = $request->input('content');
+
+    Mail::to($email)->send(new ContactMessage($name, $email, $content));
+
+    return redirect()->route('contact')->with([
+        'message' => 'El correo ha sido enviado'
+    ]);
+
+})->name('sent');
 
 
 
